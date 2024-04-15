@@ -4,8 +4,10 @@
     <meta charset="UTF-8"/>
     <title>Learn Game Development at Zenva.com</title>
     <style>
-        * { user-select: none }
-        canvas { width: 100%; }
+        * {
+            touch-action: none; -webkit-touch-callout: none; -ms-user-select: none; user-select: none; -webkit-user-select: none; -moz-user-select: none
+        }
+        canvas { width: 100% }
         body { display: flex; min-height: 100dvh; align-items: center; margin: 0; background-color: black }
     </style>
 </head>
