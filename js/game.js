@@ -16,6 +16,8 @@ gameScene.init = function() {
 
     this.enemyMinY = 50;
     this.enemyMaxY = this.height - this.enemyMinY;
+
+    this.isGameOver = false;
 }
 
 // preload assets
@@ -38,11 +40,11 @@ gameScene.create = function() {
 
     this.enemies = this.add.group({
         key: 'enemy',
-        repeat: 4,
+        repeat: 3,
         setXY: {
-            x: 150,
+            x: 160,
             y: 80,
-            stepX: 80,
+            stepX: 100,
             stepY: 20
         }
     });
@@ -60,6 +62,8 @@ gameScene.create = function() {
 }
 
 gameScene.update = function() {
+    if (this.isGameOver) return;
+
     if (this.input.activePointer.isDown) {
         this.player.x += this.playerSpeed;
     }
@@ -68,9 +72,7 @@ gameScene.update = function() {
     const goalRect = this.goal.getBounds();
 
     if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, goalRect)) {
-        console.log('You reached the goal!');
-
-        this.scene.restart();
+        this.gameOver(true);
     }
 
     for (const enemy of this.enemies.getChildren()) {
@@ -85,11 +87,35 @@ gameScene.update = function() {
         enemy.y += enemy.speed;
 
         if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, enemyRect)) {
-            console.log('Game Over');
-            this.scene.restart();
+            this.gameOver();
         }
     }
 
+}
+
+gameScene.gameOver = function(hasReachedGoal) {
+    this.isGameOver = true;
+
+    if (hasReachedGoal) {
+        this.cameras.main.zoomTo(3);
+        this.cameras.main.pan(this.player.x, this.player.y, 0);
+
+        this.cameras.main.on('camerazoomcomplete', function () {
+            this.scene.restart();
+        }, this);
+
+        return;
+    }
+
+    this.cameras.main.shake(500);
+
+    this.cameras.main.on('camerashakecomplete', function () {
+        this.cameras.main.fade(500);
+    }, this);
+
+    this.cameras.main.on('camerafadeoutcomplete', function() {
+        this.scene.restart();
+    }, this);
 }
 
 // set the configuration of the game
