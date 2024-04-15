@@ -11,8 +11,8 @@ gameScene.init = function() {
 
     this.playerSpeed = 2.5;
 
-    this.enemyMinSpeed = .5;
-    this.enemyMaxSpeed = 2;
+    this.enemyMinSpeed = 2;
+    this.enemyMaxSpeed = 4;
 
     this.enemyMinY = 50;
     this.enemyMaxY = this.height - this.enemyMinY;
