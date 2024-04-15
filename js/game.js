@@ -11,10 +11,10 @@ gameScene.init = function() {
 
     this.playerSpeed = 2.5;
 
-    this.enemyMinSpeed = 1;
-    this.enemyMaxSpeed = 3;
+    this.enemyMinSpeed = .5;
+    this.enemyMaxSpeed = 2;
 
-    this.enemyMinY = 85;
+    this.enemyMinY = 50;
     this.enemyMaxY = this.height - this.enemyMinY;
 }
 
@@ -28,7 +28,7 @@ gameScene.preload = function() {
 
 // called once after the preload ends
 gameScene.create = function() {
-    this.background = this.add.image(this.centerX, this.centerY, 'background')
+    this.background = this.add.image(this.centerX, this.centerY, 'background');
 
     this.player = this.add.image(70, this.centerY, 'player');
     this.player.setScale(.6);
@@ -36,14 +36,27 @@ gameScene.create = function() {
     this.goal = this.add.image(this.width - 80, this.centerY, 'goal');
     this.goal.setScale(.6);
 
-    this.enemy = this.add.image(200, this.centerY, 'enemy');
-    this.enemy.setScale(.8);
-    this.enemy.flipX = true;
+    this.enemies = this.add.group({
+        key: 'enemy',
+        repeat: 4,
+        setXY: {
+            x: 150,
+            y: 80,
+            stepX: 80,
+            stepY: 20
+        }
+    });
 
-    const dir = Math.random() < .5 ? -1 : 1;
-    const speed = this.enemyMinSpeed + Math.random() * (this.enemyMaxSpeed - this.enemyMinSpeed)
+    Phaser.Actions.ScaleXY(this.enemies.getChildren(), -.4, -.4);
 
-    this.enemy.speed = dir * speed;
+    Phaser.Actions.Call(this.enemies.getChildren(), function (enemy) {
+        enemy.flipX = true;
+
+        const dir = Math.random() < .5 ? -1 : 1;
+        const speed = this.enemyMinSpeed + Math.random() * (this.enemyMaxSpeed - this.enemyMinSpeed)
+
+        enemy.speed = dir * speed;
+    }, this);
 }
 
 gameScene.update = function() {
@@ -55,17 +68,28 @@ gameScene.update = function() {
     const goalRect = this.goal.getBounds();
 
     if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, goalRect)) {
+        console.log('You reached the goal!');
+
         this.scene.restart();
     }
 
-    const isGoingUp = this.enemy.speed < 0 && this.enemy.y < this.enemyMinY;
-    const isGoingDown = this.enemy.speed > 0 && this.enemy.y >= this.enemyMaxY;
+    for (const enemy of this.enemies.getChildren()) {
+        const isGoingUp = enemy.speed < 0 && enemy.y < this.enemyMinY;
+        const isGoingDown = enemy.speed > 0 && enemy.y >= this.enemyMaxY;
+        const enemyRect = enemy.getBounds();
 
-    if (isGoingUp || isGoingDown) {
-        this.enemy.speed *= -1;
+        if (isGoingUp || isGoingDown) {
+            enemy.speed *= -1;
+        }
+
+        enemy.y += enemy.speed;
+
+        if (Phaser.Geom.Intersects.RectangleToRectangle(playerRect, enemyRect)) {
+            console.log('Game Over');
+            this.scene.restart();
+        }
     }
 
-    this.enemy.y += this.enemy.speed;
 }
 
 // set the configuration of the game
