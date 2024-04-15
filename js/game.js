@@ -122,9 +122,11 @@ gameScene.gameOver = function(hasReachedGoal) {
 const config = {
     type: Phaser.AUTO, // phaser will use WebGL if available, if not it will use canvas API.
     width: 640,
-    height: 360,
+    height: 340,
     scene: gameScene,
-    antialias: false
+    enableDebug: false,
+    antialias: false,
+    powerPreference: 'high-performance'
 }
 
 // create a new game, pass the configuration
